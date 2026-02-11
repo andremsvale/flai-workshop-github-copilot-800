@@ -30,43 +30,115 @@ function Leaderboard() {
       });
   }, []);
 
-  if (loading) return <div className="container mt-4">Loading leaderboard...</div>;
-  if (error) return <div className="container mt-4 alert alert-danger">Error: {error}</div>;
+  const getRankBadgeClass = (rank) => {
+    if (rank === 1) return 'rank-badge rank-1';
+    if (rank === 2) return 'rank-badge rank-2';
+    if (rank === 3) return 'rank-badge rank-3';
+    return 'rank-badge bg-light text-dark';
+  };
+
+  if (loading) {
+    return (
+      <div className="container mt-4">
+        <div className="content-wrapper text-center">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          <p className="mt-3 text-muted">Loading leaderboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mt-4">
+        <div className="content-wrapper">
+          <div className="alert alert-danger" role="alert">
+            <h4 className="alert-heading">Error!</h4>
+            <p>Failed to load leaderboard: {error}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mt-4">
-      <h2>Leaderboard</h2>
-      <div className="table-responsive">
-        <table className="table table-striped">
-          <thead>
-            <tr>
-              <th>Rank</th>
-              <th>ID</th>
-              <th>User</th>
-              <th>Team</th>
-              <th>Total Points</th>
-              <th>Total Activities</th>
-            </tr>
-          </thead>
-          <tbody>
-            {leaderboard.length === 0 ? (
+      <div className="content-wrapper">
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <h1 className="page-header mb-0">Leaderboard</h1>
+          <button className="btn btn-success">
+            <i className="bi bi-trophy me-2"></i>
+            View My Rank
+          </button>
+        </div>
+        
+        <div className="table-responsive">
+          <table className="table table-hover align-middle">
+            <thead>
               <tr>
-                <td colSpan="6" className="text-center">No leaderboard data found</td>
+                <th scope="col" className="text-center" style={{width: '100px'}}>Rank</th>
+                <th scope="col">ID</th>
+                <th scope="col">User</th>
+                <th scope="col">Team</th>
+                <th scope="col" className="text-center">Total Points</th>
+                <th scope="col" className="text-center">Activities</th>
+                <th scope="col" className="text-center">Actions</th>
               </tr>
-            ) : (
-              leaderboard.map((entry, index) => (
-                <tr key={entry.id}>
-                  <td>{index + 1}</td>
-                  <td>{entry.id}</td>
-                  <td>{entry.user}</td>
-                  <td>{entry.team}</td>
-                  <td>{entry.total_points}</td>
-                  <td>{entry.total_activities}</td>
+            </thead>
+            <tbody>
+              {leaderboard.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="text-center py-5">
+                    <div className="text-muted">
+                      <p className="mb-2">No leaderboard data found</p>
+                      <small>Complete activities to join the leaderboard!</small>
+                    </div>
+                  </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                leaderboard.map((entry, index) => {
+                  const rank = index + 1;
+                  return (
+                    <tr key={entry.id}>
+                      <td className="text-center">
+                        <span className={getRankBadgeClass(rank)}>
+                          {rank}
+                        </span>
+                      </td>
+                      <td><span className="badge bg-secondary">{entry.id}</span></td>
+                      <td>
+                        <strong>{entry.user}</strong>
+                        {rank <= 3 && <i className="bi bi-star-fill text-warning ms-2"></i>}
+                      </td>
+                      <td>
+                        <span className="badge bg-primary">{entry.team}</span>
+                      </td>
+                      <td className="text-center">
+                        <span className="badge bg-success fs-6">{entry.total_points}</span>
+                      </td>
+                      <td className="text-center">
+                        <span className="badge bg-info">{entry.total_activities}</span>
+                      </td>
+                      <td className="text-center">
+                        <button className="btn btn-sm btn-outline-primary" title="View Profile">
+                          <i className="bi bi-person"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+        
+        {leaderboard.length > 0 && (
+          <div className="mt-3 text-muted">
+            <small>Total Players: {leaderboard.length}</small>
+          </div>
+        )}
       </div>
     </div>
   );

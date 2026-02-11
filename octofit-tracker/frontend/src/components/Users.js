@@ -30,43 +30,101 @@ function Users() {
       });
   }, []);
 
-  if (loading) return <div className="container mt-4">Loading users...</div>;
-  if (error) return <div className="container mt-4 alert alert-danger">Error: {error}</div>;
+  if (loading) {
+    return (
+      <div className="container mt-4">
+        <div className="content-wrapper text-center">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          <p className="mt-3 text-muted">Loading users...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mt-4">
+        <div className="content-wrapper">
+          <div className="alert alert-danger" role="alert">
+            <h4 className="alert-heading">Error!</h4>
+            <p>Failed to load users: {error}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mt-4">
-      <h2>Users</h2>
-      <div className="table-responsive">
-        <table className="table table-striped">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Username</th>
-              <th>Email</th>
-              <th>First Name</th>
-              <th>Last Name</th>
-              <th>Date Joined</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.length === 0 ? (
+      <div className="content-wrapper">
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <h1 className="page-header mb-0">Users</h1>
+          <button className="btn btn-primary">
+            <i className="bi bi-person-plus me-2"></i>
+            Add User
+          </button>
+        </div>
+        
+        <div className="table-responsive">
+          <table className="table table-hover align-middle">
+            <thead>
               <tr>
-                <td colSpan="6" className="text-center">No users found</td>
+                <th scope="col">ID</th>
+                <th scope="col">Username</th>
+                <th scope="col">Email</th>
+                <th scope="col">First Name</th>
+                <th scope="col">Last Name</th>
+                <th scope="col">Date Joined</th>
+                <th scope="col" className="text-center">Actions</th>
               </tr>
-            ) : (
-              users.map(user => (
-                <tr key={user.id}>
-                  <td>{user.id}</td>
-                  <td>{user.username}</td>
-                  <td>{user.email}</td>
-                  <td>{user.first_name}</td>
-                  <td>{user.last_name}</td>
-                  <td>{new Date(user.date_joined).toLocaleDateString()}</td>
+            </thead>
+            <tbody>
+              {users.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="text-center py-5">
+                    <div className="text-muted">
+                      <p className="mb-2">No users found</p>
+                      <small>Add your first user to get started!</small>
+                    </div>
+                  </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                users.map(user => (
+                  <tr key={user.id}>
+                    <td><span className="badge bg-secondary">{user.id}</span></td>
+                    <td>
+                      <strong>{user.username}</strong>
+                    </td>
+                    <td>
+                      <a href={`mailto:${user.email}`} className="text-decoration-none">
+                        {user.email}
+                      </a>
+                    </td>
+                    <td>{user.first_name || <span className="text-muted">-</span>}</td>
+                    <td>{user.last_name || <span className="text-muted">-</span>}</td>
+                    <td>{new Date(user.date_joined).toLocaleDateString()}</td>
+                    <td className="text-center">
+                      <button className="btn btn-sm btn-outline-primary me-1" title="View Profile">
+                        <i className="bi bi-eye"></i>
+                      </button>
+                      <button className="btn btn-sm btn-outline-info" title="Edit">
+                        <i className="bi bi-pencil"></i>
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+        
+        {users.length > 0 && (
+          <div className="mt-3 text-muted">
+            <small>Total Users: {users.length}</small>
+          </div>
+        )}
       </div>
     </div>
   );
