@@ -88,7 +88,7 @@ function Teams() {
                       <div>
                         <span className="badge bg-primary me-2">
                           <i className="bi bi-people-fill me-1"></i>
-                          {team.member_count || 0} Members
+                          {(Array.isArray(team.members) ? team.members.length : 0)} Members
                         </span>
                       </div>
                       <small className="text-muted">
