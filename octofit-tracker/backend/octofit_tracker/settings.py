@@ -26,6 +26,7 @@ SECRET_KEY = 'django-insecure-tuqf&-ae=vk@%_dm0&fw5&o$v5o=38r^xu7_gv)e3cpaqkfa0v
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# Django REST Framework setup for GitHub Codespaces
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 if os.environ.get('CODESPACE_NAME'):
     ALLOWED_HOSTS.append(f"{os.environ.get('CODESPACE_NAME')}-8000.app.github.dev")
