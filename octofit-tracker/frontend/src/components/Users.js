@@ -72,18 +72,17 @@ function Users() {
             <thead>
               <tr>
                 <th scope="col">ID</th>
-                <th scope="col">Username</th>
+                <th scope="col">Name</th>
                 <th scope="col">Email</th>
-                <th scope="col">First Name</th>
-                <th scope="col">Last Name</th>
-                <th scope="col">Date Joined</th>
+                <th scope="col">Team</th>
+                <th scope="col">Role</th>
                 <th scope="col" className="text-center">Actions</th>
               </tr>
             </thead>
             <tbody>
               {users.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="text-center py-5">
+                  <td colSpan="6" className="text-center py-5">
                     <div className="text-muted">
                       <p className="mb-2">No users found</p>
                       <small>Add your first user to get started!</small>
@@ -95,16 +94,19 @@ function Users() {
                   <tr key={user.id}>
                     <td><span className="badge bg-secondary">{user.id}</span></td>
                     <td>
-                      <strong>{user.username}</strong>
+                      <strong>{user.name}</strong>
                     </td>
                     <td>
                       <a href={`mailto:${user.email}`} className="text-decoration-none">
                         {user.email}
                       </a>
                     </td>
-                    <td>{user.first_name || <span className="text-muted">-</span>}</td>
-                    <td>{user.last_name || <span className="text-muted">-</span>}</td>
-                    <td>{new Date(user.date_joined).toLocaleDateString()}</td>
+                    <td>
+                      <span className="badge bg-info">{user.team || <span className="text-muted">-</span>}</span>
+                    </td>
+                    <td>
+                      <span className="badge bg-primary">{user.role || <span className="text-muted">-</span>}</span>
+                    </td>
                     <td className="text-center">
                       <button className="btn btn-sm btn-outline-primary me-1" title="View Profile">
                         <i className="bi bi-eye"></i>
