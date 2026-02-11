@@ -79,18 +79,19 @@ function Leaderboard() {
             <thead>
               <tr>
                 <th scope="col" className="text-center" style={{width: '100px'}}>Rank</th>
-                <th scope="col">ID</th>
                 <th scope="col">User</th>
                 <th scope="col">Team</th>
-                <th scope="col" className="text-center">Total Points</th>
+                <th scope="col" className="text-center">Total Calories</th>
                 <th scope="col" className="text-center">Activities</th>
+                <th scope="col" className="text-center">Distance (km)</th>
+                <th scope="col" className="text-center">Duration (min)</th>
                 <th scope="col" className="text-center">Actions</th>
               </tr>
             </thead>
             <tbody>
               {leaderboard.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="text-center py-5">
+                  <td colSpan="8" className="text-center py-5">
                     <div className="text-muted">
                       <p className="mb-2">No leaderboard data found</p>
                       <small>Complete activities to join the leaderboard!</small>
@@ -98,28 +99,36 @@ function Leaderboard() {
                   </td>
                 </tr>
               ) : (
-                leaderboard.map((entry, index) => {
-                  const rank = index + 1;
+                leaderboard.map((entry) => {
                   return (
                     <tr key={entry.id}>
                       <td className="text-center">
-                        <span className={getRankBadgeClass(rank)}>
-                          {rank}
+                        <span className={getRankBadgeClass(entry.rank)}>
+                          {entry.rank}
                         </span>
                       </td>
-                      <td><span className="badge bg-secondary">{entry.id}</span></td>
                       <td>
-                        <strong>{entry.user}</strong>
-                        {rank <= 3 && <i className="bi bi-star-fill text-warning ms-2"></i>}
+                        <div>
+                          <strong>{entry.user_name}</strong>
+                          {entry.rank <= 3 && <i className="bi bi-star-fill text-warning ms-2"></i>}
+                          <br />
+                          <small className="text-muted">{entry.user_email}</small>
+                        </div>
                       </td>
                       <td>
-                        <span className="badge bg-primary">{entry.team}</span>
+                        <span className="badge bg-primary">{entry.team || 'N/A'}</span>
                       </td>
                       <td className="text-center">
-                        <span className="badge bg-success fs-6">{entry.total_points}</span>
+                        <span className="badge bg-success fs-6">{entry.total_calories?.toLocaleString() || 0}</span>
                       </td>
                       <td className="text-center">
-                        <span className="badge bg-info">{entry.total_activities}</span>
+                        <span className="badge bg-info">{entry.total_activities || 0}</span>
+                      </td>
+                      <td className="text-center">
+                        <span className="badge bg-warning">{entry.total_distance_km?.toFixed(2) || 0}</span>
+                      </td>
+                      <td className="text-center">
+                        <span className="badge bg-secondary">{entry.total_duration_minutes?.toLocaleString() || 0}</span>
                       </td>
                       <td className="text-center">
                         <button className="btn btn-sm btn-outline-primary" title="View Profile">
