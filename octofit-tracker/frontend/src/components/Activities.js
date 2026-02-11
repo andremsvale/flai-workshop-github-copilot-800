@@ -95,14 +95,26 @@ function Activities() {
                 activities.map(activity => (
                   <tr key={activity.id}>
                     <td><span className="badge bg-secondary">{activity.id}</span></td>
-                    <td><strong>{activity.user}</strong></td>
+                    <td>
+                      <div>
+                        <strong>{activity.user_name}</strong>
+                        <br />
+                        <small className="text-muted">{activity.user_email}</small>
+                      </div>
+                    </td>
                     <td>
                       <span className="badge bg-info">{activity.activity_type}</span>
                     </td>
-                    <td>{activity.duration}</td>
-                    <td>{activity.distance}</td>
-                    <td><span className="badge bg-success">{activity.calories}</span></td>
-                    <td>{new Date(activity.date).toLocaleDateString()}</td>
+                    <td>{activity.duration_minutes}</td>
+                    <td>{activity.distance_km}</td>
+                    <td><span className="badge bg-success">{activity.calories_burned}</span></td>
+                    <td>
+                      {activity.date ? new Date(activity.date).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                      }) : '-'}
+                    </td>
                     <td className="text-center">
                       <button className="btn btn-sm btn-outline-primary me-1" title="View Details">
                         <i className="bi bi-eye"></i>
