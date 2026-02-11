@@ -20,7 +20,21 @@ function Teams() {
         console.log('Teams data received:', data);
         // Handle both paginated (.results) and plain array responses
         const teamsData = data.results || data;
-        setTeams(Array.isArray(teamsData) ? teamsData : []);
+        const parsedTeams = (Array.isArray(teamsData) ? teamsData : []).map(team => {
+          // Parse members if it's a string
+          let members = team.members;
+          if (typeof members === 'string') {
+            try {
+              members = JSON.parse(members);
+            } catch (e) {
+              console.error('Error parsing members for team:', team.name, e);
+              members = [];
+            }
+          }
+          return { ...team, members: Array.isArray(members) ? members : [] };
+        });
+        console.log('Parsed teams:', parsedTeams);
+        setTeams(parsedTeams);
         setLoading(false);
       })
       .catch(error => {
@@ -88,7 +102,7 @@ function Teams() {
                       <div>
                         <span className="badge bg-primary me-2">
                           <i className="bi bi-people-fill me-1"></i>
-                          {(Array.isArray(team.members) ? team.members.length : 0)} Members
+                          {team.members.length} Members
                         </span>
                       </div>
                       <small className="text-muted">
