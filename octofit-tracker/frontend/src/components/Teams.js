@@ -23,18 +23,12 @@ function Teams() {
         const teamsArray = teamsData.results || teamsData;
         const usersArray = usersData.results || usersData;
         
+        // Ensure teams have members as arrays
         const parsedTeams = (Array.isArray(teamsArray) ? teamsArray : []).map(team => {
-          // Parse members if it's a string
-          let members = team.members;
-          if (typeof members === 'string') {
-            try {
-              members = JSON.parse(members);
-            } catch (e) {
-              console.error('Error parsing members for team:', team.name, e);
-              members = [];
-            }
-          }
-          return { ...team, members: Array.isArray(members) ? members : [] };
+          return { 
+            ...team, 
+            members: Array.isArray(team.members) ? team.members : [] 
+          };
         });
         
         console.log('Parsed teams:', parsedTeams);

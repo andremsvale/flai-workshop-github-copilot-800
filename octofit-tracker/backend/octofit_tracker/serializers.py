@@ -15,6 +15,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 class TeamSerializer(serializers.ModelSerializer):
     id = serializers.SerializerMethodField()
+    members = serializers.SerializerMethodField()
     
     class Meta:
         model = Team
@@ -22,6 +23,17 @@ class TeamSerializer(serializers.ModelSerializer):
     
     def get_id(self, obj):
         return str(obj.pk) if obj.pk else None
+    
+    def get_members(self, obj):
+        # Ensure members is returned as a list, not a string
+        members = obj.members
+        if isinstance(members, str):
+            try:
+                import json
+                members = json.loads(members)
+            except:
+                members = []
+        return members if isinstance(members, list) else []
 
 
 class ActivitySerializer(serializers.ModelSerializer):
