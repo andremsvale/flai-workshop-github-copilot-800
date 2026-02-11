@@ -2,25 +2,28 @@ import React, { useState, useEffect } from 'react';
 
 function Teams() {
   const [teams, setTeams] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const apiUrl = `https://${process.env.REACT_APP_CODESPACE_NAME}-8000.app.github.dev/api/teams/`;
+    const usersUrl = `https://${process.env.REACT_APP_CODESPACE_NAME}-8000.app.github.dev/api/users/`;
     console.log('Fetching teams from:', apiUrl);
 
-    fetch(apiUrl)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then(data => {
-        console.log('Teams data received:', data);
+    Promise.all([
+      fetch(apiUrl).then(r => r.json()),
+      fetch(usersUrl).then(r => r.json())
+    ])
+      .then(([teamsData, usersData]) => {
+        console.log('Teams data received:', teamsData);
+        console.log('Users data received:', usersData);
+        
         // Handle both paginated (.results) and plain array responses
-        const teamsData = data.results || data;
-        const parsedTeams = (Array.isArray(teamsData) ? teamsData : []).map(team => {
+        const teamsArray = teamsData.results || teamsData;
+        const usersArray = usersData.results || usersData;
+        
+        const parsedTeams = (Array.isArray(teamsArray) ? teamsArray : []).map(team => {
           // Parse members if it's a string
           let members = team.members;
           if (typeof members === 'string') {
@@ -33,16 +36,39 @@ function Teams() {
           }
           return { ...team, members: Array.isArray(members) ? members : [] };
         });
+        
         console.log('Parsed teams:', parsedTeams);
         setTeams(parsedTeams);
+        setUsers(Array.isArray(usersArray) ? usersArray : []);
         setLoading(false);
       })
       .catch(error => {
-        console.error('Error fetching teams:', error);
+        console.error('Error fetching data:', error);
         setError(error.message);
         setLoading(false);
       });
   }, []);
+
+  const getUserInfo = (email) => {
+    const user = users.find(u => u.email === email);
+    if (user) {
+      return { name: user.name, role: user.role };
+    }
+    // Fallback to parsing email
+    const name = email.split('@')[0].replace(/\./g, ' ').split(' ').map(w => 
+      w.charAt(0).toUpperCase() + w.slice(1)
+    ).join(' ');
+    return { name, role: 'Hero' };
+  };
+
+  const getHeroIcon = (role) => {
+    const roleLower = (role || '').toLowerCase();
+    if (roleLower.includes('strength')) return '💪';
+    if (roleLower.includes('cardio') || roleLower.includes('running')) return '⚡';
+    if (roleLower.includes('flexibility') || roleLower.includes('yoga')) return '🧘';
+    if (roleLower.includes('swimming')) return '🏊';
+    return '🦸';
+  };
 
   const getTeamTheme = (teamName) => {
     const name = teamName.toLowerCase();
@@ -229,32 +255,132 @@ function Teams() {
                         </div>
                       </div>
 
-                      {/* Team Members */}
+                      {/* Team Members - Hero Roster */}
                       <div className="mb-3">
-                        <h5 className="fw-bold mb-3" style={{
+                        <h5 className="fw-bold mb-3 text-center" style={{
                           color: '#333',
-                          borderBottom: '2px solid #ddd',
-                          paddingBottom: '0.5rem'
+                          fontSize: '1.5rem',
+                          textTransform: 'uppercase',
+                          letterSpacing: '2px',
+                          borderBottom: `3px solid ${theme.borderColor}`,
+                          paddingBottom: '0.75rem',
+                          textShadow: '1px 1px 2px rgba(0,0,0,0.1)'
                         }}>
-                          <i className="bi bi-stars me-2"></i>Hero Roster:
+                          <i className="bi bi-stars me-2" style={{color: theme.borderColor}}></i>
+                          Hero Roster
+                          <i className="bi bi-stars ms-2" style={{color: theme.borderColor}}></i>
                         </h5>
-                        <div className="d-flex flex-wrap gap-2">
-                          {team.members.map((member, index) => (
-                            <span key={index} 
-                              className={`badge ${theme.badgeClass}`}
-                              style={{
-                                fontSize: '0.85rem',
-                                padding: '0.5rem 1rem',
-                                borderRadius: '20px',
-                                boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
-                                fontWeight: '600'
-                              }}>
-                              <i className="bi bi-person-badge me-1"></i>
-                              {member.split('@')[0].replace(/\./g, ' ').split(' ').map(w => 
-                                w.charAt(0).toUpperCase() + w.slice(1)
-                              ).join(' ')}
-                            </span>
-                          ))}
+                        <div className="row g-3">
+                          {team.members.map((memberEmail, index) => {
+                            const heroInfo = getUserInfo(memberEmail);
+                            const heroIcon = getHeroIcon(heroInfo.role);
+                            return (
+                              <div className="col-md-6" key={index}>
+                                <div style={{
+                                  background: `linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%)`,
+                                  border: `3px solid ${theme.borderColor}`,
+                                  borderRadius: '12px',
+                                  padding: '1rem',
+                                  boxShadow: `0 4px 8px rgba(0,0,0,0.2), inset 0 0 15px rgba(255,255,255,0.5)`,
+                                  transition: 'all 0.3s ease',
+                                  cursor: 'pointer',
+                                  position: 'relative',
+                                  overflow: 'hidden'
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.transform = 'translateY(-4px)';
+                                  e.currentTarget.style.boxShadow = `0 8px 16px rgba(0,0,0,0.3), 0 0 20px ${theme.shadowColor}`;
+                                  e.currentTarget.style.borderColor = theme.titleColor;
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.transform = 'translateY(0)';
+                                  e.currentTarget.style.boxShadow = `0 4px 8px rgba(0,0,0,0.2), inset 0 0 15px rgba(255,255,255,0.5)`;
+                                  e.currentTarget.style.borderColor = theme.borderColor;
+                                }}>
+                                  {/* Comic book corner effect */}
+                                  <div style={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    right: 0,
+                                    width: 0,
+                                    height: 0,
+                                    borderStyle: 'solid',
+                                    borderWidth: '0 40px 40px 0',
+                                    borderColor: `transparent ${theme.borderColor} transparent transparent`,
+                                    opacity: 0.3
+                                  }}></div>
+                                  
+                                  <div className="d-flex align-items-center">
+                                    {/* Hero Icon */}
+                                    <div style={{
+                                      fontSize: '3rem',
+                                      marginRight: '1rem',
+                                      background: theme.accentGradient,
+                                      borderRadius: '50%',
+                                      width: '70px',
+                                      height: '70px',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
+                                      border: '3px solid #fff'
+                                    }}>
+                                      {heroIcon}
+                                    </div>
+                                    
+                                    {/* Hero Info */}
+                                    <div style={{flex: 1}}>
+                                      <h6 style={{
+                                        margin: 0,
+                                        fontSize: '1.1rem',
+                                        fontWeight: '900',
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '1px',
+                                        color: '#000',
+                                        textShadow: '1px 1px 2px rgba(255,255,255,0.8)',
+                                        fontFamily: 'Impact, sans-serif'
+                                      }}>
+                                        {heroInfo.name}
+                                      </h6>
+                                      <div style={{
+                                        display: 'inline-block',
+                                        background: theme.gradient,
+                                        color: '#fff',
+                                        padding: '0.25rem 0.75rem',
+                                        borderRadius: '15px',
+                                        fontSize: '0.75rem',
+                                        fontWeight: '700',
+                                        marginTop: '0.25rem',
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '0.5px',
+                                        boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
+                                      }}>
+                                        {heroInfo.role}
+                                      </div>
+                                    </div>
+                                    
+                                    {/* Rank indicator */}
+                                    <div style={{
+                                      background: theme.accentGradient,
+                                      borderRadius: '50%',
+                                      width: '35px',
+                                      height: '35px',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      fontWeight: '900',
+                                      fontSize: '1.1rem',
+                                      color: '#000',
+                                      boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+                                      border: '2px solid #fff'
+                                    }}>
+                                      #{index + 1}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
                     </div>
